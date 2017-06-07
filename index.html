@@ -150,13 +150,13 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2 class="section-heading">Some of Our Stories</h2>
-                    <h3 class="section-subheading text-muted"></h3>
+                    <h3 class="section-subheading text-muted">You can filter stories by the dreamer's name, country of origin, or both.</h3>
                 </div>
                 
                 <div class="col-lg-6 text-center">
                     <div class="input-group">
                       
-                      <input id="searchDreamer" list="dreamers" type="text" class="form-control" placeholder="Search by dreamer name">
+                      <input id="searchDreamer" list="dreamers" type="text" class="form-control" placeholder="Filter by dreamer name">
                       <span class="input-group-btn">
                         <button class="btn btn-default" type="button">Go!</button>
                       </span>
@@ -169,7 +169,7 @@
                 <div class="col-lg-6 text-center">
                     <div class="input-group">
                       
-                      <input id="searchCountry" list="countries" type="text" class="form-control" placeholder="Search by country of origin">
+                      <input id="searchCountry" list="countries" type="text" class="form-control" placeholder="Filter by country of origin">
                       <span class="input-group-btn">
                         <button class="btn btn-default" type="button">Go!</button>
                       </span>
@@ -506,25 +506,34 @@
             var countries = [];
             var names = [];
             
+            var randomizedStories = storyData.sort(function(a, b){
+                return 0.5 - Math.random();
+            });
             
-            $.each(storyData, function(i,v) {
+            $.each(randomizedStories, function(i,v) {
                 //console.log(i);
                 if (v.useOnWebsite) {
                     // update countries and names
-                    countries.push(v.Country);
-                    names.push(v.Name);
+                    if (countries.indexOf(v.Country) === -1) {
+                        countries.push(v.Country);
+                    }
+                    
+                    if (names.indexOf(v.Name) === -1) {
+                        names.push(v.Name);
+                    }
+                    
                     
                     
                     // create a portfolio tile
                     var newTile = $(".portfolio-item.template").clone();
                     
-                    newTile.attr("id","story" + i);
+                    newTile.attr("id","story" + v.storyId);
                     newTile.removeClass("template");
                     newTile.addClass("storyTile");
                     newTile.attr("data-name",v.Name);
                     newTile.attr("data-country",v.Country);
-                    newTile.find(".portfolio-link").attr("href","#portfolioModal" + i);
-                    newTile.find("img").css("background-image","url('images/image" + i + ".jpg')");
+                    newTile.find(".portfolio-link").attr("href","#portfolioModal" + v.storyId);
+                    newTile.find("img").css("background-image","url('images/image" + v.storyId + ".jpg')");
                     newTile.find("img").css("background-size","cover");
                     newTile.find("h4").text(v.Name);
                     newTile.find(".text-muted").text(v.Country);
@@ -533,9 +542,9 @@
                     // create a portfolio modal
                     var newModal = $(".portfolio-modal.template").clone();
                     newModal.removeClass("template");
-                    newModal.attr("id","portfolioModal" + i);
+                    newModal.attr("id","portfolioModal" + v.storyId);
                     newModal.find("h2").text(v.Name + ": "  + v.Country);
-                    newModal.find("img").attr("src","images/image" + i + ".jpg" );
+                    newModal.find("img").attr("src","images/image" + v.storyId + ".jpg" );
                     newModal.find("p.story").text(v.Detail);
                     
                     
@@ -575,21 +584,16 @@
             function filterStories (jQelement) {
                 var dreamerName = $("#searchDreamer").val();
                 var dreamerCountry = $("#searchCountry").val();
-                //console.log(dreamerCountry.length);
                 
                 if (dreamerName === "" && dreamerCountry === "") {
-                    console.log("1");
                     $(".storyTile").show();
                 } else if (dreamerName != "" && dreamerCountry != "") {
-                    console.log("2");
                       $(".storyTile").hide();
                     $( ".storyTile[data-country='" + dreamerCountry + "'][data-name='" + dreamerName + "']").show();
                 } else if (dreamerCountry != "") {
-                    console.log("3");
                      $(".storyTile").hide();
                     $( ".storyTile[data-country='" + dreamerCountry + "']").show();
                 } else {
-                    console.log("4");
                      $(".storyTile").hide();
                     
                     $( ".storyTile[data-name='" + dreamerName + "']").show();
